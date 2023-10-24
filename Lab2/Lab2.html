@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/d3@5.9.2/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <title>Lab 2</title>
+  </head>
+  <body>	
+	<script type="text/javascript">
+	
+      //define the width and the height of the svg
+      var width = 900;
+      var height = 580;
+
+      //render the svg container
+      var svg = d3.select('body')
+                  .append('svg')
+                  .attr('width', width)
+                  .attr('height', height);
+
+      // the projection funtion
+      var projection = d3.geoMercator() 
+          .center([3.0, 30.279229])
+          .scale(1500);
+		  
+      // the generator will use the features in the geojson file to create shapes based on the projection
+      var path =  d3.geoPath().projection(projection);
+
+      //create an array of objects ("location" : "color")
+      var colors = {"West" : "green",
+                   "North" : "red", 
+                   "East": "blue",
+                   "South" : "yellow"};
+
+    function colorRegion(X, d, path, colors, distance)
+    {
+      if(path.centroid(d)[1] <= path.centroid(X)[1])
+      {
+        var color;
+        if(path.centroid(d)[0] < path.centroid(X)[0]-distance)
+        {
+          //West
+          color = colors["West"];
+        }
+        else if(path.centroid(d)[0] > path.centroid(X)[0]+distance)
+        {
+          //East
+          color = colors["East"];
+        }
+        else
+        {
+          //North
+          color = colors["North"];
+        }
+      }
+      else
+      {
+        //South
+        color = colors["South"];
+      }
+      return color;
+    }
+
+    function nameWilayas(X, path)
+    {
+      svg.selectAll('text')
+          .data(X.features)
+          .enter()
+          .append('text')
+          .text(function(d){
+            return d.properties.NAME_1;
+          })
+          .attr("x", function(d){
+            return path.centroid(d)[0];
+            })
+          .attr("y", function(d){
+            return path.centroid(d)[1];
+            })
+          .attr('font-size','5px');
+    }
+    
+      // read the json file using the json function, and then perform some operations on it
+      d3.json('algeriaRM.json').then(function(data){
+        var X = topojson.feature(data, data.objects.dz);
+        console.log(X.features);
+        console.log(path.centroid(X));
+
+        svg.selectAll('path')
+            .data(X.features)
+            .enter()
+            .append('path')
+            .attr('d', path)
+            .style('fill', function(d){
+              var distance = 40;
+              return colorRegion(X, d, path, colors, distance);
+            })
+            .style('stroke', 'black')
+            .style('stroke-width', '.4px');
+        
+        nameWilayas(X, path);
+    });
+
+	</script>
+  </body>
+</html>

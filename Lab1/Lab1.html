@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://unpkg.com/d3@5.9.2/dist/d3.min.js"></script>
+        <title>Lab 1</title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            // Define the width and the height of the svg container
+            var margin = { top: 20, right: 20, bottom: 90, left: 70 };
+            var width = 1200 - margin.left - margin.right;
+            var height = 400 - margin.top - margin.bottom;
+
+            // Render the svg container
+            var svg = d3.select("body")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("class", "bar-chart")
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Function that draw the bar chart
+            function draw(data){
+                var barPadding = 2;
+                var barWidth = width / data.length;
+
+                svg.selectAll("rect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("fill", "#058c42")
+                    .attr("x", function(d, i){
+                        return i * barWidth;
+                    })
+                    .attr("y", function(d){
+                        return height - (d.value * 100);
+                    })
+                    .attr("height", function(d){
+                        return d.value * 100;
+                    })
+                    .attr("width", barWidth - barPadding);
+
+                // Create X and Y scales
+                var xScale = d3.scaleBand()
+                    .domain(data.map(function(d) { return d.state; }))
+                    .range([0, width]);
+
+                var yScale = d3.scaleLinear()
+                    .domain([0, d3.max(data, function(d) { return d.value; })])
+                    .range([height, 0]);
+
+                // Create X and Y axes
+                var xAxis = d3.axisBottom(xScale);
+                var yAxis = d3.axisLeft(yScale);
+
+                // Append X axis to the SVG with slightly rotated and positioned labels
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .style("text-anchor", "end")
+                    .attr("dx", "-.6em")
+                    .attr("dy", ".15em")
+                    .attr("transform", "rotate(-30)");
+
+                // Append Y axis to the SVG
+                svg.append("g")
+                    .call(yAxis);
+
+                // Add X and Y axis labels
+                svg.append("text")
+                    .attr("class", "x-label")
+                    .attr("text-anchor", "end")
+                    .attr("x", width)
+                    .attr("y", height + 45) // Adjusted position
+                    .style("font-size", "14px")
+                    .text("State");
+
+                svg.append("text")
+                    .attr("class", "y-label")
+                    .attr("text-anchor", "middle")
+                    .attr("x", -height / 2)
+                    .attr("y", -50) // Adjusted margin
+                    .attr("transform", "rotate(-90)")
+                    .style("font-size", "14px")
+                    .text("Value");
+            }
+
+            // Load the CSV file and perform some operations on it
+            d3.csv('us-productivity.csv').then(function(data){
+                data.forEach(d =>{
+                    d.value = +d.value;
+                });
+                console.log(data);
+                draw(data);
+            });
+        </script>
+    </body>
+</html>
