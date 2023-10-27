@@ -9,5 +9,5 @@ This represents the practical implementation of some exercises within the data v
 ### Lab 2
 Coloring the provinces of Algeria based on their positions : east, west, north, south.
 <p align="center"> 
-<img src="https://github.com/Fatima-Abci/PRACTICAL_DATA_VISUALIZATION_USING_D3.js/blob/master/images/Lab2.png" alt="lab 2" width="500" height="350">
+<img src="https://github.com/Fatima-Abci/PRACTICAL_DATA_VISUALIZATION_USING_D3.js/blob/master/images/Lab2.png" alt="lab 2" width="500" height="400">
 </p>
